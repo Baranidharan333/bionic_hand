@@ -1,0 +1,449 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bionic Hand Control</title>
+<style>
+  :root {
+    --bg: #f6f7f9; --card: #ffffff; --text: #1b1f24; --muted: #667085; --line: #e3e6ea;
+    --accent: #2563eb; --accent-soft: #e0e9ff; --ok: #16a34a; --ok-soft: #dcfce7; --warn: #b45309;
+    --warn-bg: #fff4e0; --bad: #dc2626; --bad-bg: #fde8e8; --bar: #16a34a; --bar-bg: #eef1f5;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0f1216; --card: #171b21; --text: #e6e8eb; --muted: #98a2b3; --line: #2a3038;
+      --accent: #6b9bff; --accent-soft: #1d2a45; --ok: #4ade80; --ok-soft: #12301d; --warn: #fbbf24;
+      --warn-bg: #2d2410; --bad: #f87171; --bad-bg: #351a1a; --bar: #4ade80; --bar-bg: #232a33;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+         font: 14px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  header { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between;
+           padding: 14px 20px; background: var(--card); border-bottom: 1px solid var(--line);
+           position: sticky; top: 0; z-index: 5; }
+  h1 { font-size: 18px; margin: 0; }
+  h2 { font-size: 15px; margin: 0 0 12px; }
+  h3 { font-size: 13px; margin: 14px 0 8px; color: var(--muted); font-weight: 600; }
+  main { max-width: 1280px; margin: 0 auto; padding: 16px; display: grid; gap: 16px; }
+  .card { background: var(--card); border: 1px solid var(--line); border-radius: 10px; padding: 16px; }
+  .row { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+  .muted { color: var(--muted); }
+  .mono { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 12px; }
+  input, select, button { font: inherit; color: inherit; }
+  input[type=text], input[type=number], select { background: var(--bg); border: 1px solid var(--line);
+           border-radius: 6px; padding: 5px 8px; }
+  input[type=text] { width: 90px; }
+  input[type=number] { width: 64px; }
+  input[type=range] { width: 100%; accent-color: var(--accent); }
+  button { background: var(--accent); color: #fff; border: 0; border-radius: 6px; padding: 6px 14px;
+           cursor: pointer; font-weight: 600; }
+  button.secondary { background: var(--accent-soft); color: var(--accent); }
+  button.big { padding: 10px 22px; font-size: 15px; }
+  button.open { background: var(--ok); }
+  button.danger { background: var(--bad-bg); color: var(--bad); }
+  button:disabled { opacity: .5; cursor: not-allowed; }
+  .pill { display: inline-flex; gap: 6px; align-items: center; padding: 3px 10px; border-radius: 999px;
+          background: var(--bg); border: 1px solid var(--line); font-size: 13px; }
+  .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--muted); flex: none; }
+  .dot.ok { background: var(--ok); } .dot.bad { background: var(--bad); } .dot.warn { background: var(--warn); }
+  .banner { border-radius: 8px; padding: 10px 12px; }
+  .banner.warn { background: var(--warn-bg); color: var(--warn); }
+  .banner.bad { background: var(--bad-bg); color: var(--bad); }
+  .banner pre { margin: 6px 0 0; white-space: pre-wrap; }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { text-align: left; padding: 6px 8px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+  th { font-weight: 600; color: var(--muted); font-size: 12px; }
+  td.num, th.num { text-align: right; font-variant-numeric: tabular-nums; }
+  .mini { display: flex; gap: 3px; align-items: flex-end; height: 26px; }
+  .mini span { width: 9px; background: var(--accent); border-radius: 2px 2px 0 0; min-height: 2px; }
+  .hands { display: grid; grid-template-columns: repeat(auto-fit, minmax(420px, 1fr)); gap: 16px; }
+  .hand-head { display: flex; flex-wrap: wrap; gap: 8px; justify-content: space-between; align-items: center;
+               margin-bottom: 12px; }
+  .hand-head h2 { margin: 0; }
+  .fingers { display: grid; grid-template-columns: 96px 1fr 58px 110px; gap: 6px 10px; align-items: center; }
+  .fingers .hdr { font-size: 11px; color: var(--muted); font-weight: 600; }
+  .rb { display: flex; gap: 6px; align-items: center; }
+  .rb .track { flex: 1; height: 8px; background: var(--bar-bg); border-radius: 4px; overflow: hidden; }
+  .rb .fill { height: 100%; background: var(--bar); width: 0; transition: width .15s linear; }
+  .rb .v { width: 30px; text-align: right; font-variant-numeric: tabular-nums; font-weight: 600; }
+  .settings { display: grid; grid-template-columns: 96px 1fr 58px auto; gap: 6px 10px; align-items: center; }
+  .empty { padding: 24px; text-align: center; color: var(--muted); }
+  details summary { cursor: pointer; color: var(--accent); font-weight: 600; margin-top: 10px; }
+  .offline .fingers .rb { opacity: .4; }
+  #toast { position: fixed; bottom: 16px; left: 50%; transform: translateX(-50%); max-width: 90vw;
+           background: var(--bad); color: #fff; padding: 10px 16px; border-radius: 8px; display: none; z-index: 9; }
+  @media (max-width: 600px) {
+    header, main { padding-left: 16px; padding-right: 16px; }
+    .hands { grid-template-columns: 1fr; }
+    .fingers { grid-template-columns: 70px 1fr 52px; }
+    .fingers .rb, .fingers .hdr.rbh { grid-column: 2 / 4; }
+    .settings { grid-template-columns: 70px 1fr 52px; }
+    .settings button { grid-column: 1 / -1; }
+  }
+</style>
+</head>
+<body>
+<header>
+  <h1>Bionic Hand Control</h1>
+  <div class="row">
+    <span class="pill"><span class="dot" id="linkDot"></span><span id="linkText">...</span></span>
+    <input type="text" id="channel" value="can0" aria-label="CAN channel">
+    <button class="secondary" id="reconnect">Reconnect</button>
+  </div>
+</header>
+
+<main>
+  <div id="banner" hidden></div>
+
+  <section class="card">
+    <h2>Scan for hands</h2>
+    <div class="row">
+      <label>From ID <input type="text" id="lo" value="0x01"></label>
+      <label>to <input type="text" id="hi" value="0x10"></label>
+      <button id="scanBtn">Scan</button>
+      <span class="muted" id="scanInfo">Sends the read-only angle query (A1 01) to each ID.</span>
+    </div>
+    <div id="scanResults" style="margin-top:12px"></div>
+  </section>
+
+  <section class="card">
+    <div class="row" style="justify-content:space-between">
+      <div class="row">
+        <h2 style="margin:0">Hands</h2>
+        <label class="muted">Add by ID <input type="text" id="addId" placeholder="0x01"></label>
+        <button class="secondary" id="addBtn">Add</button>
+      </div>
+      <div class="row">
+        <label>Read rate <select id="rate">
+          <option value="1">1 Hz</option><option value="2">2 Hz</option>
+          <option value="5" selected>5 Hz</option><option value="10">10 Hz</option>
+        </select></label>
+        <label><input type="checkbox" id="withStatus"> Voltage / temp / servo steps</label>
+        <button class="secondary" id="pauseBtn">Pause reading</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="hands" id="hands"></section>
+</main>
+<div id="toast"></div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+const FINGERS = ["Little", "Ring", "Middle", "Index", "Thumb", "Thumb base"];
+const GESTURES = [["index", "Index"], ["middle", "Middle"], ["ring", "Ring"], ["little", "Little"], ["ok", "OK"]];
+let state = null, paused = false;
+const viewing = new Set();
+const latest = {};            // id -> last readback
+const hex = (n) => "0x" + n.toString(16).toUpperCase().padStart(2, "0");
+const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+
+function toast(msg) {
+  const t = $("toast"); t.textContent = msg; t.style.display = "block";
+  clearTimeout(toast.t); toast.t = setTimeout(() => t.style.display = "none", 4000);
+}
+
+async function api(path, body) {
+  const opt = body === undefined ? {} :
+    {method: "POST", headers: {"Content-Type": "application/json"}, body: JSON.stringify(body)};
+  const r = await fetch(path, opt);
+  const data = await r.json().catch(() => ({error: r.statusText}));
+  if (!r.ok) throw new Error(data.error || r.statusText);
+  return data;
+}
+const cmd = (id, what, body) => api(`/api/hand/${id}/${what}`, body).catch((e) => toast(e.message));
+
+// ------------------------------------------------------------------ connection state
+function renderState() {
+  const s = state, link = s.link || {};
+  let cls = "bad", txt;
+  if (s.sim) { cls = "ok"; txt = "Simulated (2 hands)"; }
+  else if (!s.connected) txt = "Not connected";
+  else if (!link.available) txt = `${s.channel}: ${link.error}`;
+  else {
+    txt = `${s.channel} ${link.operstate} · ${link.can_state} · ${(link.bitrate || 0) / 1000} kbps`;
+    cls = link.operstate !== "UP" ? "bad" : (link.can_state === "ERROR-ACTIVE" ? "ok" : "warn");
+  }
+  if (s.read_only) txt += " · read-only";
+  $("linkDot").className = "dot " + cls;
+  $("linkText").textContent = txt;
+  if (document.activeElement !== $("channel")) $("channel").value = s.channel;
+
+  const b = $("banner");
+  let html = "", kind = "warn";
+  if (!s.connected) { kind = "bad"; html = `<b>Cannot open the CAN bus.</b><pre>${esc(s.open_error)}</pre>`; }
+  else if (!s.sim && link.available && link.operstate !== "UP") {
+    kind = "bad";
+    html = `<b>${esc(s.channel)} is DOWN.</b> Bring it up in a terminal, then press Reconnect:` +
+           `<pre class="mono">./can_up.sh</pre>`;
+  } else if (s.health.ack_errors) {
+    html = `<b>Bus errors: ${s.health.ack_errors} no-ACK frames.</b><pre>${esc(s.diagnosis || s.health.last_error)}</pre>`;
+  }
+  b.hidden = !html; b.className = "banner " + kind; b.innerHTML = html;
+}
+
+async function refreshState() {
+  try { state = await api("/api/state"); renderState(); renderHandPanels(); } catch (e) { console.error(e); }
+}
+
+$("reconnect").onclick = async () => {
+  $("reconnect").disabled = true;
+  try { state = await api("/api/connect", {channel: $("channel").value.trim()}); renderState(); }
+  catch (e) { toast(e.message); }
+  $("reconnect").disabled = false;
+};
+
+// ------------------------------------------------------------------ scan
+$("scanBtn").onclick = async () => {
+  const lo = parseInt($("lo").value), hi = parseInt($("hi").value);
+  if (isNaN(lo) || isNaN(hi) || lo > hi) { toast("Enter a valid ID range, e.g. 0x01 to 0x10"); return; }
+  $("scanBtn").disabled = true;
+  $("scanInfo").textContent = `Scanning ${hex(lo)}..${hex(hi)} ...`;
+  $("scanResults").innerHTML = "";
+  try {
+    const r = await api("/api/scan", {lo, hi});
+    state = r.state; renderState();
+    $("scanInfo").textContent = `${r.found.length} hand(s) found in ${hex(lo)}..${hex(hi)}` +
+      (r.new_error_frames ? ` · ${r.new_error_frames} bus error frames during scan` : "");
+    renderScan(r);
+  } catch (e) {
+    $("scanInfo").textContent = "Scan failed";
+    $("scanResults").innerHTML = `<div class="banner bad">${esc(e.message)}</div>`;
+  }
+  $("scanBtn").disabled = false;
+};
+
+function renderScan(r) {
+  let html = "";
+  if (r.error) html += `<div class="banner bad" style="margin-bottom:8px">Scan stopped: ${esc(r.error)}</div>`;
+  if (!r.found.length) {
+    html += `<div class="banner warn">No hand answered.${r.diagnosis ? `<pre>${esc(r.diagnosis)}</pre>` : ""}
+      Tip: both hands ship with ID 0x01. Connect one hand at a time to find each one's ID.</div>`;
+    $("scanResults").innerHTML = html; return;
+  }
+  if (r.found.length === 1)
+    html += `<p class="muted">Only one hand answered. If two are connected, they may share the same ID
+      (factory default 0x01): connect one at a time to tell them apart.</p>`;
+  html += `<table><thead><tr><th>Command ID</th><th>Feedback ID</th><th>Positions (finger 1→6)</th><th>Label</th><th></th></tr></thead><tbody>`;
+  for (const h of r.found) {
+    const bars = h.angles.map((a) => `<span title="${a.name}: ${a.raw}" style="height:${Math.max(2, a.percent * .26)}px"></span>`).join("");
+    html += `<tr><td class="mono"><b>${h.hex}</b></td>
+      <td class="mono">${h.reply_id == null ? "?" : "0x" + h.reply_id.toString(16).toUpperCase().padStart(3, "0")}</td>
+      <td><div class="mini">${bars}</div></td>
+      <td><select data-id="${h.id}" class="labelSel">
+        ${["", "Right", "Left"].map((l) => `<option value="${l}" ${h.label === l ? "selected" : ""}>${l || "—"}</option>`).join("")}
+      </select></td>
+      <td><button class="secondary viewBtn" data-id="${h.id}">Control</button></td></tr>`;
+  }
+  $("scanResults").innerHTML = html + "</tbody></table>";
+  document.querySelectorAll(".labelSel").forEach((el) => el.onchange = async () => {
+    try { const r = await api("/api/labels", {id: +el.dataset.id, label: el.value});
+          state.labels = r.labels; renderHandPanels(); }
+    catch (e) { toast(e.message); }
+  });
+  document.querySelectorAll(".viewBtn").forEach((el) => el.onclick = () => { viewing.add(+el.dataset.id); renderHandPanels(); });
+}
+
+$("addBtn").onclick = () => {
+  const id = parseInt($("addId").value);
+  if (isNaN(id) || id < 0 || id > 0x7FF) { toast("Enter a CAN ID like 0x01"); return; }
+  viewing.add(id); renderHandPanels();
+};
+
+// ------------------------------------------------------------------ hand panels
+function shownHands() {
+  const out = [], labels = state?.labels || {};
+  for (const want of ["Right", "Left"]) {
+    const id = Object.keys(labels).find((k) => labels[k] === want);
+    if (id !== undefined) out.push({id: +id, label: want});
+  }
+  for (const id of viewing) if (!out.some((h) => h.id === id)) out.push({id, label: ""});
+  return out;
+}
+
+function panelHtml(h) {
+  const ro = state?.read_only ? "disabled" : "";
+  const fingers = FINGERS.map((n, i) => `
+    <div>${i + 1} ${n}</div>
+    <input type="range" min="0" max="90" value="0" data-f="${i}" ${ro} aria-label="${n} command">
+    <input type="number" min="0" max="90" value="0" data-n="${i}" ${ro} aria-label="${n} value">
+    <div class="rb"><div class="track"><div class="fill" data-k="f${i}"></div></div><span class="v" data-k="v${i}">–</span></div>`).join("");
+  const settings = [["speed", "Speed"], ["torque", "Torque"], ["accel", "Acceleration"]].map(([k, n]) => `
+    <div>${n}</div><input type="range" min="0" max="255" value="128" data-s="${k}" ${ro}>
+    <input type="number" min="0" max="255" value="128" data-sn="${k}" ${ro}>
+    <button class="secondary" data-set="${k}" ${ro}>Set</button>`).join("");
+  return `
+  <section class="card" id="hand-${h.id}" data-id="${h.id}">
+    <div class="hand-head">
+      <h2>${h.label ? h.label + " hand" : "Hand"}
+        <span class="muted mono">cmd ${hex(h.id)} · feedback <span data-k="rid">?</span></span></h2>
+      <div class="row">
+        <span class="pill"><span class="dot" data-k="dot"></span><span data-k="online">waiting</span></span>
+        ${h.label ? "" : `<button class="secondary" data-act="close-panel">Remove</button>`}
+      </div>
+    </div>
+
+    <div class="row">
+      <button class="big open" data-g="open" ${ro}>Open</button>
+      <button class="big" data-g="fist" ${ro}>Close</button>
+      <span style="flex:1"></span>
+      <button class="secondary" data-pw="1" ${ro}>Power on</button>
+      <button class="danger" data-pw="0" ${ro}>Power off</button>
+    </div>
+    <div class="row" style="margin-top:8px">
+      <span class="muted">Gestures:</span>
+      ${GESTURES.map(([g, n]) => `<button class="secondary" data-g="${g}" ${ro}>${n}</button>`).join("")}
+    </div>
+
+    <h3>Fingers: slider = command, green bar = angle read back (degrees 0–90)</h3>
+    <div class="fingers">
+      <div class="hdr">Finger</div><div class="hdr">Command</div><div class="hdr">Value</div><div class="hdr rbh">Actual</div>
+      ${fingers}
+    </div>
+    <div class="row" style="margin-top:10px">
+      <label><input type="checkbox" data-k="liveSend" checked ${ro}> Move while dragging</label>
+      <span style="flex:1"></span>
+      <button class="secondary" data-act="sync">Sliders ← actual</button>
+      <button class="secondary" data-act="all0" ${ro}>All 0</button>
+      <button class="secondary" data-act="all90" ${ro}>All 90°</button>
+      <button data-act="pose" ${ro}>Send pose</button>
+    </div>
+
+    <table data-k="status" hidden style="margin-top:12px"><thead><tr><th>Finger</th><th class="num">Voltage</th>
+      <th class="num">Temp</th><th class="num">Servo steps</th></tr></thead><tbody></tbody></table>
+    <div class="muted" data-k="err" style="margin-top:8px"></div>
+
+    <details><summary>Speed / torque / acceleration (whole hand)</summary>
+      <p class="muted">Raw byte values 0–255, sent as <span class="mono">05/06/07 value 00 00</span>.
+        The manual doesn't give their scale; start low and test.</p>
+      <div class="settings">${settings}</div>
+    </details>
+    <details data-k="limits"><summary>Servo limits &amp; version</summary><div data-k="details" class="muted">Loading…</div></details>
+  </section>`;
+}
+
+function renderHandPanels() {
+  const box = $("hands"), hands = shownHands();
+  if (!hands.length) {
+    box.innerHTML = `<div class="card empty">Scan and press <b>Control</b>, label a hand Right/Left, or add a hand by ID.</div>`;
+    box.dataset.key = ""; return;
+  }
+  const key = hands.map((h) => `${h.id}:${h.label}`).join(",") + (state?.read_only ? ":ro" : "");
+  if (box.dataset.key === key) return;
+  box.dataset.key = key;
+  box.innerHTML = hands.map(panelHtml).join("");
+  box.querySelectorAll(".card[data-id]").forEach(wirePanel);
+}
+
+const q = (root, k) => root.querySelector(`[data-k="${k}"]`);
+
+function wirePanel(el) {
+  const id = +el.dataset.id;
+  el.dataset.synced = "";
+  el.querySelectorAll("[data-g]").forEach((b) => b.onclick = () => cmd(id, "gesture", {name: b.dataset.g}));
+  el.querySelectorAll("[data-pw]").forEach((b) => b.onclick = () => {
+    if (b.dataset.pw === "0" && !confirm("Power off this hand? Fingers will go limp.")) return;
+    cmd(id, "power", {on: b.dataset.pw === "1"});
+  });
+
+  // finger sliders: send single-finger commands while dragging, throttled per finger
+  const sliders = [...el.querySelectorAll("[data-f]")], nums = [...el.querySelectorAll("[data-n]")];
+  const pending = {}, last = {};
+  const sendFinger = (i) => {
+    const now = performance.now();
+    if (now - (last[i] || 0) < 60) {           // max ~16 commands/s per finger
+      clearTimeout(pending[i]); pending[i] = setTimeout(() => sendFinger(i), 60); return;
+    }
+    last[i] = now;
+    cmd(id, "finger", {finger: i + 1, value: +sliders[i].value});
+  };
+  sliders.forEach((s, i) => {
+    s.oninput = () => { nums[i].value = s.value; if (q(el, "liveSend").checked) sendFinger(i); };
+    s.onchange = () => { if (q(el, "liveSend").checked) { clearTimeout(pending[i]); last[i] = 0; sendFinger(i); } };
+  });
+  nums.forEach((n, i) => n.onchange = () => {
+    const v = Math.max(0, Math.min(90, +n.value || 0)); n.value = v; sliders[i].value = v;
+    if (q(el, "liveSend").checked) { last[i] = 0; sendFinger(i); }
+  });
+  const setAll = (v) => sliders.forEach((s, i) => { s.value = v; nums[i].value = v; });
+  const sendPose = () => cmd(id, "pose", {values: sliders.map((s) => +s.value)});
+  el.querySelector('[data-act="pose"]').onclick = sendPose;
+  el.querySelector('[data-act="all0"]').onclick = () => { setAll(0); sendPose(); };
+  el.querySelector('[data-act="all90"]').onclick = () => { setAll(90); sendPose(); };
+  el.querySelector('[data-act="sync"]').onclick = () => syncSliders(el);
+  const closeBtn = el.querySelector('[data-act="close-panel"]');
+  if (closeBtn) closeBtn.onclick = () => { viewing.delete(id); renderHandPanels(); };
+
+  // settings
+  el.querySelectorAll("[data-s]").forEach((s) => {
+    const n = el.querySelector(`[data-sn="${s.dataset.s}"]`);
+    s.oninput = () => n.value = s.value;
+    n.onchange = () => { n.value = Math.max(0, Math.min(255, +n.value || 0)); s.value = n.value; };
+  });
+  el.querySelectorAll("[data-set]").forEach((b) => b.onclick = () =>
+    cmd(id, "setting", {kind: b.dataset.set, value: +el.querySelector(`[data-sn="${b.dataset.set}"]`).value}));
+
+  q(el, "limits").addEventListener("toggle", (ev) => ev.target.open && loadDetails(id, ev.target));
+}
+
+function syncSliders(el) {
+  const d = latest[el.dataset.id];
+  if (!d?.angles) { toast("No position read back yet"); return; }
+  el.querySelectorAll("[data-f]").forEach((s, i) => { s.value = d.angles[i].raw; });
+  el.querySelectorAll("[data-n]").forEach((n, i) => { n.value = d.angles[i].raw; });
+}
+
+function renderHand(d) {
+  latest[d.id] = d;
+  const el = $("hand-" + d.id); if (!el) return;
+  el.classList.toggle("offline", !d.online);
+  q(el, "dot").className = "dot " + (d.online ? "ok" : "bad");
+  q(el, "online").textContent = d.online ? "online" : "no reply";
+  if (d.reply_id != null) q(el, "rid").textContent = "0x" + d.reply_id.toString(16).toUpperCase().padStart(3, "0");
+  if (d.angles) {
+    d.angles.forEach((a, i) => {
+      q(el, "v" + i).textContent = a.raw;
+      q(el, "f" + i).style.width = a.percent + "%";
+    });
+    if (!el.dataset.synced) { el.dataset.synced = "1"; syncSliders(el); }  // start sliders at current pose
+  }
+  const tb = q(el, "status");
+  tb.hidden = !$("withStatus").checked || !d.status?.length;
+  tb.querySelector("tbody").innerHTML = (d.status || []).map((s) => `<tr><td>${s.id} ${esc(s.name.replace("_", " "))}</td>
+    <td class="num">${s.voltage_v.toFixed(1)} V</td><td class="num">${s.temperature_c} °C</td>
+    <td class="num">${s.position_steps}</td></tr>`).join("");
+  q(el, "err").textContent = d.errors?.length ? d.errors.join(" · ") : "";
+}
+
+async function loadDetails(id, d) {
+  const box = q(d, "details");
+  try {
+    const r = await api(`/api/hand/${id}/details`);
+    box.innerHTML = `<p>Version bytes: <span class="mono">${esc(r.version)}</span></p>
+      <table><thead><tr><th>Finger</th><th class="num">Min</th><th class="num">Max</th><th class="num">Correction</th><th>Raw</th></tr></thead><tbody>
+      ${r.limits.map((l) => `<tr><td>${l.id} ${esc(l.name.replace("_", " "))}</td><td class="num">${l.min}</td><td class="num">${l.max}</td>
+        <td class="num">${l.correction}</td><td class="mono">${esc(l.raw)}</td></tr>`).join("")}</tbody></table>`;
+  } catch (e) { box.textContent = e.message; }
+}
+
+// ------------------------------------------------------------------ read loop
+async function pollLoop() {
+  const t0 = performance.now();
+  if (!paused && state?.connected) {
+    for (const h of shownHands()) {
+      try { renderHand(await api(`/api/hand/${h.id}?status=${$("withStatus").checked ? 1 : 0}`)); }
+      catch (e) { renderHand({id: h.id, online: false, status: [], errors: [e.message]}); }
+    }
+  }
+  setTimeout(pollLoop, Math.max(20, 1000 / +$("rate").value - (performance.now() - t0)));
+}
+
+$("pauseBtn").onclick = () => { paused = !paused; $("pauseBtn").textContent = paused ? "Resume reading" : "Pause reading"; };
+
+refreshState().then(pollLoop);
+setInterval(refreshState, 3000);
+</script>
+</body>
+</html>

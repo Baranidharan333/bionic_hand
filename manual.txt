@@ -1,0 +1,3276 @@
+Intelligent Bionic Robotic Hand
+User Manual
+
+Version Number: 1.0.0
+Last Written Date: 2024.07
+
+1 / 17
+
+Content
+Intelligent Bionic Robotic Hand User Manual ................................................................ 1
+1.Safety Information ........................................................................................................ 3
+2. Product Introduction .................................................................................................... 4
+2.1 Product Overview ................................................................................................ 4
+2.2 Mechanical Data .................................................................................................. 4
+2.3 Specifications ....................................................................................................... 5
+2.4 Finger Codes ........................................................................................................ 5
+2.5 Electrical Connections ......................................................................................... 6
+3. Communication Protocol ............................................................................................. 7
+3.1 Overview of Communication Protocol ................................................................7
+3.2 RS485 Communication Protocol ......................................................................... 8
+3.3 CAN Communication Protocol ..........................................................................11
+3.4 Parameter Analysis .............................................................................................14
+4. Version Correction ..................................................................................................... 16
+
+2 / 17
+
+1.Safety Information
+Before installing and using the Intelligent Bionic Robotic Hand, please carefully read
+the information in this chapter. Below are the essential safety usage details for the
+dexterous hand. This information is intended to protect you, the driver, and related
+equipment when using the product.
+
+Cautions
+Reminder:
+• Disconnect the power supply before installation, cleaning, or maintenance.
+• Always operate the product within the specified range of parameters.
+• Do not use damaged power cables, plugs, or loose sockets, as this may damage the
+product.
+• Avoid touching electrical components to prevent damage from electrostatic
+discharge.
+• Ensure the end effector is correctly and securely mounted and connected via the
+cable.
+• The Intelligent Bionic Robotic hand's power supply current is limited to 2A-3A to
+prevent excessive current during stalling, which could damage the equipment.
+
+3 / 17
+
+2. Product Introduction
+2.1 Product Overview
+The Intelligent Bionic Robotic Hand is a humanoid robotic hand integrated with 6
+actuators, allowing each finger to move independently. It is highly flexible and
+adaptable, capable of interacting with the surrounding environment, objects, and even
+humans, while minimizing the risks of injuring the operator, damaging the product, or
+harming the robot itself. The communication methods used include RS485, Can, and
+Bluetooth interfaces.
+2.2
+
+Mechanical Data
+The following diagram shows the overall dimensions of the intelligent bionic
+hand structure, which is applicable to both the left and right hands. The distance units
+in the diagram are in millimeters [MM].
+
+4 / 17
+
+2.3 Specifications
+Operating Voltage/Current
+
+DC12V/3A
+
+Static Current
+
+200mA
+
+Communication Interface
+
+RS485、Can
+
+Degrees of Freedom
+
+6
+
+Gripping Force
+
+40N
+
+Palm Traction
+
+80N
+
+Maximum Force on Thumb
+
+12N
+
+Force on Each Fingertip
+
+10N
+
+Operating Temperature Range
+
+-20℃～60℃
+
+2.4 Finger Codes
+The finger codes are the same for both the left and right hands:
+Little finger: Code 1, Ring finger: Code 2, Middle finger: Code 3, Index finger: Code
+4, Thumb: Code 5, Thumb's metacarpal joint: Code 6
+
+5 / 17
+
+2.5 Electrical Connections
+Universal
+Power
+Cable
+
+xh2.54*30cm*2
+
+USB to RS485*1
+RS485
+MX1.25mm*2
+
+Can
+
+X1251H-02-03*1
+
+Wiring Definition (Note: The +5V on the RS485 is optional and mainly used to power
+other devices.)
+
+6 / 17
+
+3. Communication Protocol
+3.1Overview of Communication Protocol
+RS-485 Communication Protocol
+RS-485 (also known as EIA-485) is an industrial standard serial communication
+protocol used to connect multiple devices. It is a half-duplex communication protocol
+that allows data transmission between multiple devices, with a maximum of 32
+devices connected. One device acts as the master, while the other devices function as
+slaves.
+The advantages of RS-485 technology include its ability to transmit data over
+long distances, with a maximum distance of 1200 meters. It also supports high
+transmission speeds, reaching up to 10 Mbps. Additionally, RS-485 is highly resistant
+to interference, making it capable of withstanding noise and operating in
+environments with electromagnetic interference (EMI).
+RS-485 technology is widely used in various applications, primarily in industrial
+control systems such as robotic control systems, automation control systems, and
+smart home systems.
+In summary, RS-485 is a highly useful serial communication protocol. Its long
+transmission distance, high data transfer rate, and strong resistance to interference
+make it suitable for a range of applications, including industrial control systems, data
+acquisition systems, intelligent transportation systems, and many other scenarios.
+CAN Communication Protocol
+The main features of the CAN bus are as follows:
+High Reliability: The CAN bus uses differential signaling for data transmission,
+which provides strong resistance to interference. It also features error detection and
+recovery mechanisms, significantly enhancing the system's reliability.
+Real-Time Capability: The CAN bus utilizes bit arbitration technology, ensuring
+that high-priority messages are transmitted in a timely manner. This makes it ideal for
+applications that require real-time responses.
+Flexibility: The CAN bus supports various communication speeds, with the
+highest speed reaching up to 1 Mbps. It also supports a range of data lengths, from 8
+bits to 8192 bits, allowing for flexible configuration based on specific needs.
+International Standard: The CAN bus is an international standard and is widely used
+worldwide, facilitating technical exchanges and product interoperability.
+
+7 / 17
+
+3.2 RS485 Communication Protocol
+The features of the RS485 protocol are as follows:
+ 115200bps Baud rate;
+ 1 stop bit；
+ 8 data bits；
+ No parity check；
+Bionic Robotic Hand Parameter Operations Data Type UNS16
+03：
+FF
+Power
+Byte
+
+Byte
+
+Byte
+
+0
+
+1
+
+2
+
+FF
+
+FF
+
+03
+
+Frame Header
+
+Byte3
+FF
+
+Byt
+
+Byte
+
+Byte
+
+e4
+
+5
+
+6
+
+1/0
+
+1/0
+
+1/0
+
+Byte7
+
+Byte
+
+Byte
+
+Byte
+
+0
+
+1
+
+2
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte1
+
+Byte
+
+Byte
+
+Byte
+
+8
+
+9
+
+10
+
+11
+
+12
+
+13
+
+4
+
+15
+
+16
+
+17
+
+1/0
+
+1/0
+
+1/0
+
+1/0
+
+1/0
+
+1/0
+
+1/0
+
+1/0
+
+FF
+
+FF
+
+1/0
+
+Frame Trailer
+
+Independent Movement Mode
+Byte3
+
+Byt
+
+Byte
+
+e4
+
+5
+
+Byte6
+
+Byte
+
+Byte
+
+Byte
+
+7
+
+8
+
+9
+
+Accel
+FF
+
+Byte
+
+Power
+A1
+
+FF
+
+Byte
+
+03
+
+A1
+
+ID
+
+FF
+
+Target
+
+eratio
+
+Byt
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+e11
+
+12
+
+13
+
+14
+
+15
+
+16
+
+17
+
+00
+
+FF
+
+FF
+
+/
+
+Frame Trailer
+
+Operation Time
+
+Position
+
+n
+
+Byte10
+
+Operation
+
+Torque
+
+Speed
+
+Limitation
+
+Single
+Frame Header
+
+Move
+
+/
+
+ment
+Byte
+
+Byte
+
+0
+
+1
+
+Byte2
+
+Byte3
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byt
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte1
+
+4
+
+5
+
+6
+
+7
+
+8
+
+9
+
+10
+
+e11
+
+12
+
+13
+
+14
+
+15
+
+16
+
+7
+
+FF
+
+FF
+
+Accelerati
+FF
+
+FF
+
+03
+
+on
+0xA2
+Position0x
+A3
+Time
+
+ID1
+
+Frame
+
+0xA4
+
+Header
+
+Speed
+
+ID2
+
+ID3
+
+ID4
+
+ID5
+
+ID6
+Frame Trailer
+
+0xA5
+Torque
+0xA6
+B1
+Byte0
+FF
+
+Linked Movement Mode
+
+Byte
+
+Byte
+
+Byte
+
+1
+
+2
+
+3
+
+FF
+
+03
+
+B1
+
+FrameHeader
+
+Byte4
+01
+Action
+
+Byt
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+e5
+
+6
+
+7
+
+8
+
+9
+
+10
+
+11
+
+12
+
+13
+
+14
+
+15
+
+16
+
+00
+
+00
+
+00
+
+00
+
+00
+
+00
+
+00
+
+00
+
+00
+
+00
+
+00
+
+FF
+
+补0
+
+Byte17
+FF
+
+Frame Trailer
+
+8 / 17
+
+01: All Fingers Open 02: All Fingers Closed (Fist) 03: Extend Index Finger 04: Extend Middle Finger 05: Extend Ring Finger 06: Extend Little Finger
+07: Gesture: OK
+
+D1：
+0x01
+Byte
+
+Byte
+
+Byte
+
+0
+
+1
+
+2
+
+FF
+
+FF
+
+D1
+
+Get Normal Status
+Byte3
+
+Norm-
+
+Header
+
+al
+
+Byte
+
+Byte
+
+Byte
+
+0
+
+1
+
+2
+
+FF
+
+FF
+
+D1
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+4
+
+5
+
+6
+
+7
+
+8
+
+9
+
+10
+
+11
+
+12
+
+13
+
+14
+
+15
+
+16
+
+17
+
+01
+
+00
+
+00
+
+00
+
+00
+
+00
+
+00
+
+00
+
+00
+
+00
+
+00
+
+00
+
+FF
+
+FF
+
+Read
+
+Volta
+
+1
+
+-ge
+
+Status
+
+/
+
+Frame Trailer
+
+01
+
+Frame
+
+0x02
+
+Byte
+
+ID
+
+Byte3
+
+Byte
+
+Byte
+
+Byte
+
+0
+
+1
+
+2
+
+FF
+
+FF
+
+D1
+
+Byt
+
+Byte
+
+Byte
+
+Byt
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+4
+
+e5
+
+e6
+
+7
+
+8
+
+e9
+
+10
+
+11
+
+12
+
+13
+
+14
+
+15
+
+16
+
+17
+
+01
+
+00
+
+00
+
+00
+
+00
+
+00
+
+00
+
+00
+
+00
+
+00
+
+00
+
+00
+
+FF
+
+FF
+
+ID
+
+1/0
+
+1/0
+
+1/0
+
+1/0
+
+1/0
+
+1/0
+
+1/0
+
+1/0
+
+1/0
+
+1/0
+
+/
+
+Frame Trailer
+
+02
+
+Position Debugging
+Byte3
+03
+Debuggin
+
+Byte
+
+Byte
+
+Byt
+
+Byte
+
+Byte
+
+Byt
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+4
+
+5
+
+e6
+
+7
+
+8
+
+e9
+
+10
+
+11
+
+12
+
+13
+
+14
+
+15
+
+16
+
+17
+
+01
+
+00
+
+00
+
+00
+
+00
+
+00
+
+00
+
+00
+
+00
+
+00
+
+00
+
+00
+
+FF
+
+FF
+
+/
+
+/
+
+/
+
+/
+
+Frame Trailer
+
+Read
+ID
+
+1/Wr
+
+g
+0x04
+Byte
+
+Byte
+
+Byte
+
+0
+
+1
+
+2
+
+FF
+
+FF
+
+D1
+
+Position
+
+Byt
+
+Position
+Frame Header
+
+Current
+
+Load
+
+Byte
+
+M
+0x03
+
+/
+
+EEPROM
+
+EEPRO
+
+Frame Header
+
+Temp
+
+Minimum
+
+Maximum
+
+Correction
+
+Angle
+
+Angle
+
+Position
+
+ite 2
+
+Unloading Protection
+Byte3
+
+Byt
+
+Byte
+
+Byte
+
+Byt
+
+Byte
+
+Byt
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+e4
+
+5
+
+6
+
+e7
+
+8
+
+e9
+
+10
+
+11
+
+12
+
+13
+
+14
+
+15
+
+16
+
+17
+
+01
+
+00
+
+00
+
+00
+
+00
+
+00
+
+00
+
+00
+
+00
+
+00
+
+00
+
+00
+
+FF
+
+FF
+
+/
+
+/
+
+/
+
+/
+
+/
+
+/
+
+/
+
+/
+
+/
+
+Frame Trailer
+
+By
+
+Byte
+
+Byt
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+te
+
+8
+
+e9
+
+10
+
+11
+
+12
+
+13
+
+14
+
+15
+
+16
+
+17
+
+04
+
+Unlo
+Frame
+
+Unloading
+
+Header
+
+Protection
+
+Read
+ID
+
+1/Wr
+ite 2
+
+adin
+g
+Con
+ditio
+n
+
+0x05
+Byte
+
+Byte
+
+Byte
+
+0
+
+1
+
+2
+
+Overload
+Byte3
+
+Protection
+
+Byt
+
+Byte
+
+e4
+
+5
+
+Byte6
+
+9 / 17
+
+7
+FF
+
+FF
+
+D1
+
+05
+
+01
+
+Overload
+Frame Header
+
+00
+
+ID
+
+Byte
+
+Byte
+
+Byte
+
+0
+
+1
+
+2
+
+FF
+
+FF
+
+D1
+
+Byte3
+
+1
+
+2
+
+FF
+
+FF
+
+D1
+
+load
+
+/
+
+Torq-
+
+/
+
+/
+
+/
+
+/
+
+/
+
+Frame Trailer
+
+Time
+
+ue
+
+Byt
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+e4
+
+e5
+
+6
+
+7
+
+8
+
+te9
+
+e10
+
+11
+
+12
+
+13
+
+14
+
+15
+
+16
+
+17
+
+01
+
+00
+
+00
+
+00
+
+00
+
+00
+
+00
+
+00
+
+00
+
+00
+
+00
+
+00
+
+FF
+
+FF
+
+/
+
+/
+
+/
+
+/
+
+/
+
+/
+
+/
+
+Frame Trailer
+
+Rea
+d
+ID
+
+Overc-
+
+Protection
+
+1/W
+
+urrent
+
+Current
+
+r-ite
+
+Time
+
+2
+
+Byte3
+
+Byt
+
+Byte
+
+Byte
+
+Byt
+
+Byte
+
+Byt
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+e4
+
+5
+
+6
+
+e7
+
+8
+
+e9
+
+10
+
+11
+
+12
+
+13
+
+14
+
+15
+
+16
+
+17
+
+01
+
+00
+
+00
+
+00
+
+00
+
+00
+
+00
+
+00
+
+00
+
+00
+
+00
+
+00
+
+FF
+
+FF
+
+Max Output
+
+Starting
+
+Max
+
+Torque
+
+Force
+
+Temp
+
+/
+
+Frame Trailer
+
+07
+
+Read
+ID
+
+1/Wr
+ite 2
+
+/
+
+Max
+Volt.
+
+Mini
+/
+
+mum
+Volt.
+
+Query Current Angle of a Single Finger
+
+byte0
+
+byte1
+
+byte2
+
+byte3
+
+FF
+
+FF
+
+D1
+
+09
+Single
+Finger
+
+0x10
+
+Byte
+
+byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+4
+
+5
+
+6
+
+7
+
+8
+
+9
+
+10
+
+11
+
+12
+
+13
+
+14
+
+15
+
+16
+
+17
+
+01
+
+00
+
+00
+
+00
+
+00
+
+00
+
+00
+
+00
+
+00
+
+00
+
+00
+
+00
+
+FF
+
+FF
+
+ID
+
+Angle
+
+Raw Data
+
+Frame Trailer
+
+Query Current Angle of a Single Finger
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+0
+
+1
+
+2
+
+3
+
+4
+
+5
+
+6
+
+7
+
+8
+
+FF
+
+FF
+
+D1
+
+10
+
+00
+
+00
+
+00
+
+00
+
+00
+
+All
+
+ID1
+
+ID3
+
+-g
+
+FF
+
+Working Limitations
+
+0x09
+
+Debu
+
+FF
+
+By
+
+ns
+
+Frame Header
+
+00
+
+Byte
+
+Limitatio
+
+Frame Header
+
+00
+
+Byte
+
+Working
+Frame Header
+
+00
+
+Byte
+
+06
+
+0x07
+0
+
+00
+
+Over
+
+ction
+
+e
+
+00
+
+Byt
+
+n
+
+Byte
+
+00
+
+Byt
+
+Protectio-
+
+Byte
+
+00
+
+Overcurrent Protection
+
+ent
+
+Byte
+
+/
+
+Torqu-
+
+ite 2
+
+OvercurrFrame Header
+
+00
+Prote
+
+ction
+
+1/Wr
+
+n
+
+00
+
+Prote-
+
+Read
+
+Protectio-
+
+0x06
+
+00
+
+Angle
+
+ID2
+
+Angl
+-e
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+10
+
+11
+
+12
+
+13
+
+14
+
+15
+
+16
+
+17
+
+00
+
+00
+
+00
+
+00
+
+00
+
+00
+
+00
+
+FF
+
+FF
+
+Angle
+
+ID4
+
+Byte9
+
+Angl
+-e
+
+ID5
+
+Angl
+e
+
+ID6
+
+Angl
+-e
+
+10 / 17
+
+Frame Trailer
+
+3.3 CAN Communication Protocol
+The features of the CAN protocol are as follows:
+
+
+Baud Rate: 1000 Kbps
+
+
+
+Frame Format: Standard Frame
+
+
+
+Frame Type: Data Frame
+
+Two-Byte Command
+Query Angle:
+Byte
+0
+A1
+
+Byte1
+01
+
+Return Values:
+Byte0
+
+Byte1
+
+Byte2
+
+Byte3
+
+Byte4
+
+Byte5
+
+Byte6
+
+Byte7
+
+A1
+
+01
+
+ID1Angle
+
+ID2Angle
+
+ID3Angle
+
+ID4Angle
+
+ID5Angle
+
+ID6Angle
+
+Query Version Number:
+Byte
+0
+A1
+
+Byte1
+02
+
+Store Parameters to Flash:
+Byte
+0
+A1
+
+Byte1
+
+(This command is used in conjunction with modifying ID and baud rate.)
+
+0E
+
+Action Modes:
+Byte
+0
+
+03
+
+Byte1
+
+Function
+Description
+
+01
+
+Open
+
+02
+
+Fist
+
+03
+
+Index Finger
+
+04
+
+Middle Finger
+
+05
+
+Ring Finger
+
+06
+
+Little Finger
+
+07
+
+OK Gesture
+
+Power On/Off：
+Byte
+0
+
+Byte1
+
+Function
+Description
+
+03
+
+00
+
+Power Off
+
+03
+
+11
+
+Power On
+
+11 / 17
+
+Modify Device CAN ID:
+Byte
+
+Byte
+
+0
+
+1
+
+2E
+
+Modified ID
+
+Function Description
+Modify Device CAN ID
+
+Four-Byte Command
+Single Finger Position Mode:
+Byte
+0
+04
+
+Byte1
+
+Byte2
+
+Byte3
+
+ID
+
+Angle
+
+00
+
+Byte1
+
+Byte2
+
+Byte3
+
+ID
+
+Acceleration
+
+00
+
+Byte2
+
+Byte3
+
+Single Finger Acceleration Setting:
+Byte
+0
+08
+
+Single Finger Speed Setting:
+Byte
+0
+09
+
+Byte1
+ID
+
+Speed
+
+Single Finger Torque Setting:
+Byte
+0
+10
+
+Byte1
+
+Byte2
+
+ID
+
+Byte3
+Torque
+
+Speed Setting:
+Byte
+0
+
+Byte1
+
+05
+
+Byte2
+Speed
+
+Byte3
+00
+
+Torque Setting:
+Byte
+0
+
+Byte1
+
+06
+
+Byte2
+Torque
+
+Byte3
+00
+
+Acceleration Setting:
+Byte
+0
+07
+
+Byte1
+
+Byte2
+
+Acceleration
+
+Byte3
+00
+
+Baud Rate Setting:
+
+12 / 17
+
+Byte
+0
+
+Byte1
+
+3F
+
+Byte2
+
+Byte3
+
+Baud Rate
+
+00
+
+Eight-Byte Command
+Position Mode:
+Byte0
+
+Byte1
+
+Byte2
+
+Byte3
+
+Byte4
+
+Byte5
+
+Byte6
+
+Byte7
+
+A3
+
+ID1Angle
+
+ID2Angle
+
+ID3Angle
+
+ID4Angle
+
+ID5Angle
+
+ID6Angle
+
+00
+
+Debug
+Read Minimum, Maximum, and Correction Values
+Byte0
+
+Byte1
+
+Byte2
+
+Byte3
+
+Byte4
+
+Byte5
+
+Byte6
+
+Byte7
+
+D1
+
+ID
+
+00
+
+00
+
+00
+
+00
+
+00
+
+00
+
+Byte0
+
+Byte1
+
+Byte2
+
+Byte3
+
+Byte4
+
+Byte5
+
+Byte6
+
+Byte7
+
+D1
+
+ID
+
+Return Values:
+Servo Minimum Value
+
+Servo Maximum Value
+
+Servo Correction Value
+
+Byte4
+
+Byte6
+
+Write Minimum, Maximum, and Correction Values
+Byte0
+
+Byte1
+
+D2
+
+ID
+
+Byte2
+
+Byte3
+
+Servo Minimum Value
+
+Byte5
+
+Byte7
+
+Servo Maximum Value
+
+Servo Correction Value
+
+Read Status
+Byte0
+
+Byte1
+
+Byte2
+
+Byte3
+
+Byte4
+
+Byte5
+
+Byte6
+
+Byte7
+
+D3
+
+ID
+
+00
+
+00
+
+00
+
+00
+
+00
+
+00
+
+Byte0
+
+Byte1
+
+Byte2
+
+Byte3
+
+Byte4
+
+Byte5
+
+Byte6
+
+Byte7
+
+D3
+
+ID
+
+Voltage
+
+Current Servo Value
+
+00
+
+00
+
+Return Values:
+Temperature
+
+13 / 17
+
+3.4 Parameter Analysis
+
+Function
+
+Permission
+
+Parameter Analysis
+Minimum Maximum
+Unit
+Value
+Value
+
+Minimum
+Position
+
+Read/Write
+
+0
+
+4094
+
+Steps
+
+Maximum
+Position
+
+Read/Write
+
+1
+
+4095
+
+Steps
+
+Temperature
+Limit
+
+Read/Write
+
+0
+
+100
+
+°C
+
+Max Input
+Voltage
+
+Read/Write
+
+0
+
+254
+
+0.1V
+
+Min Input
+Voltage
+
+Read/Write
+
+0
+
+254
+
+0.1V
+
+Max Torque
+
+Read/Write
+
+0
+
+1000
+
+0.10%
+
+Read/Write
+
+0
+
+254
+
+-
+
+Read/Write
+
+0
+
+254
+
+-
+
+Read/Write
+
+0
+
+254
+
+-
+
+Read/Write
+
+0
+
+254
+
+-
+
+Minimum
+Starting Force
+
+Read/Write
+
+0
+
+1000
+
+0.1%
+
+Protection
+Current
+
+Read/Write
+
+0
+
+511
+
+6.5mA
+
+Position
+Correction
+
+Read/Write
+
+-2047
+
+2047
+
+Protection
+Torque
+
+Read/Write
+
+0
+
+254
+
+Unload
+Condition
+Position Loop
+P Coefficient
+Position Loop
+D Coefficient
+Position Loop
+I Coefficient
+
+Steps
+
+1.0%
+
+Value Interpretation
+Sets the minimum position
+limit for motion travel; value
+must be less than the
+maximum angle limit.
+Sets the maximum position
+limit for motion travel; value
+must be greater than the
+minimum angle limit.
+Sets the maximum working
+temperature
+limit.
+E.g.,
+setting 70 results in a max
+temperature of 70°C with a
+precision of 1°C.
+Sets the maximum input
+voltage limit. E.g., setting 80
+limits the voltage to 8.0V
+with a precision of 0.1V.
+Sets the minimum input
+voltage limit. E.g., setting 40
+limits the voltage to 4.0V
+with a precision of 0.1V.
+Sets the maximum output
+torque limit. E.g., setting
+1000 = 100% stall torque;
+setting 800 means the stall
+torque is 40 kg·cm, and the
+max output is 40 * 0.8 = 32
+kg·cm.
+ZL
+Proportional Coefficient for
+Motor Control
+Derivative Coefficient for
+Motor Control
+Integral
+Coefficient
+for
+Motor Control
+Set the minimum output
+startup torque for the servo.
+For example, setting 1000 =
+100% * stall torque.
+The maximum adjustable
+current is 500 * 6.5mA =
+3250mA.
+BIT11 is the direction bit,
+indicating the positive or
+negative direction. The other
+bits represent the range from
+0 to 2047 steps.
+Output torque after entering
+overload protection. For
+14 / 17
+
+Protection
+Time
+
+Read/Write
+
+0
+
+254
+
+10ms
+
+Overload
+Torque
+
+Read/Write
+
+0
+
+254
+
+1.0%
+
+Overcurrent
+Protection
+Time
+
+Read/Write
+
+0
+
+254
+
+10ms
+
+Torque Switch
+
+Read/Write
+
+0
+
+2
+
+-
+
+Acceleration
+
+Read/Write
+
+0
+
+254
+
+100steps/s^2
+
+Target Position
+
+Read/Write
+
+-32766
+
+32766
+
+Steps
+
+Operation
+Time
+
+Read/Write
+
+0
+
+1000
+
+0.10%
+
+Operating
+Speed
+
+Read/Write
+
+0
+
+254
+
+steps/s
+
+Torque Limit
+
+Read/Write
+
+0
+
+1000
+
+1.0%
+
+Current
+Position
+
+Read-Only
+
+-1
+
+-1
+
+steps
+
+Current Speed
+
+Read-Only
+
+-1
+
+-1
+
+steps/s
+
+Current Load
+
+Read-Only
+
+-1
+
+-1
+
+0.1%
+
+example, setting 20 means
+20% of the maximum torque.
+The duration of time when
+the current load exceeds the
+overload torque and is
+maintained. For example,
+setting 200 means 2 seconds,
+with a maximum setting of
+2.5 seconds.
+The torque threshold to
+trigger overload protection.
+E.g., setting 80 means 80%
+of the maximum torque.
+Maximum possible time is
+254 * 10ms = 2540ms.
+Write 0: Turn off torque
+output; Write 1: Turn on
+torque output; Write 128:
+Correct current position to
+2048.
+E.g., setting 10 results in
+acceleration/deceleration of
+1000 steps per second
+squared.
+Each step represents the
+smallest resolvable angle,
+using
+absolute
+position
+control mode, where the
+maximum corresponds to the
+maximum effective angle.
+The number of steps moved
+per unit time (per second).
+For example, 50 steps/second
+= 0.732 RPM (revolutions
+per minute).
+The initial value upon
+power-up is set by the
+maximum torque (0x10), and
+users can programmatically
+modify this value to control
+the maximum torque output.
+Feedback
+the
+current
+position in terms of steps,
+where each step represents
+the smallest resolvable angle.
+In absolute position control
+mode, the maximum value
+corresponds to the maximum
+effective angle.
+Feedback the current speed
+of the motor, expressed as
+the number of steps moved
+per unit time (per second).
+The current duty cycle of the
+15 / 17
+
+Current
+Voltage
+
+Read-Only
+
+-1
+
+-1
+
+0.1V
+
+Current
+Temperature
+
+Read-Only
+
+-1
+
+-1
+
+°C
+
+Servo Status
+
+Read-Only
+
+-1
+
+-1
+
+-
+
+Movement
+Flag
+
+Read-Only
+
+-1
+
+-1
+
+-
+
+Current
+Current
+
+Read-Only
+
+-1
+
+-1
+
+6.5mA
+
+voltage output driving the
+motor.
+The
+current
+operating
+voltage of the servo.
+The
+current
+internal
+operating temperature of the
+servo.
+The corresponding bit is 0
+for no error, and 1 for an
+error.
+Bit0: Voltage Bit1: Sensor
+Bit2: Temperature
+Bit3: Current
+Bit4: Angle
+Bit5: Overload
+The servo is marked as 1
+when in motion and 0 when
+stopped.
+The maximum measurable
+current is 500 * 6.5mA =
+3250mA.
+
+4. Version Correction
+Version Update: Bug fix descriptions, optimization function descriptions.
+Version Bug: A bug was found in the version, marked in red to highlight the bug's version source,
+with the cause.
+4.1 RS485 Version Correction
+2023.07.31
+Added two commands for querying the angle:
+1. Query the current angle of a single finger: 0x09; Data type: UNS16
+Send:
+FF FF D1 09 01 00 00 00 00 00 00 00 00 00 00 00 FF FF
+Parsing:
+byte0
+FF
+
+byte
+1
+FF
+
+Frame
+Header
+
+byte2
+
+byte3
+
+D1
+
+09
+
+byte
+5
+
+Byte6
+
+Byte7
+
+Byte8
+
+00
+
+00
+
+00
+
+00
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+9
+
+10
+
+11
+
+12
+
+13
+
+14
+
+15
+
+16
+
+17
+
+00
+
+00
+
+00
+
+00
+
+00
+
+00
+
+00
+
+FF
+
+FF
+
+Single
+
+Debug
+
+Padding
+
+Finger
+
+Frame Trailer
+
+Return:
+FF FF D1 09 01 00 00 00 2C 00 00 00 3B 09 00 00 FF FF
+Parsing:
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+0
+
+1
+
+2
+
+3
+
+4
+
+5
+
+6
+
+7
+
+8
+
+9
+
+10
+
+11
+
+12
+
+13
+
+14
+
+15
+
+16
+
+17
+
+FF
+
+FF
+
+D1
+
+09
+
+01
+
+00
+
+00
+
+00
+
+2C
+
+00
+
+00
+
+00
+
+3B
+
+09
+
+00
+
+00
+
+FF
+
+FF
+
+Frame
+
+Debu
+
+Single
+
+Header
+
+g
+
+Finger
+
+ID
+
+Angle
+
+Raw Data
+
+Frame Trailer
+
+16 / 17
+
+Algorithm: X = (Maximum value - Raw data) * 90 / (Maximum value - Minimum value)
+Note: X is the angle value (range 0°～90°); Raw data refers to the values obtained from Byte[12]
+and Byte[13]; Maximum and minimum values are the limit values in the Debug settings. The
+obtained data is in hexadecimal and should be converted to decimal for calculation.
+2. Query All Finger Current Angles 0x10; Data Type UNS16
+FF FF D1 10 00 00 00 00 00 00 00 00 00 00 00 00 FF FF
+Return:
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+0
+
+1
+
+2
+
+3
+
+4
+
+FF
+
+FF
+
+D1
+
+10
+
+00
+
+Debug
+
+All
+
+ID1
+
+Frame
+Header
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+Byte
+
+6
+
+7
+
+8
+
+9
+
+10
+
+11
+
+12
+
+13
+
+14
+
+15
+
+16
+
+17
+
+00
+
+00
+
+00
+
+00
+
+00
+
+00
+
+00
+
+00
+
+00
+
+00
+
+00
+
+FF
+
+FF
+
+Angle
+
+ID2
+
+Angle
+
+ID3
+
+Byte5
+
+Angl
+-e
+
+ID4
+
+Angl
+-e
+
+ID5
+
+Angl
+-e
+
+ID6
+
+Angl
+-e
+
+17 / 17
+
+Frame Trailer
+
+
